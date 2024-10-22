@@ -5,7 +5,6 @@ import discord
 from discord.ext import commands
 import random
 import catapi
-import asyncio
 
 import os
 from dotenv import load_dotenv
@@ -57,6 +56,14 @@ async def on_message(message):
     # If the message length was greater than 25, scold the author for yapping
     if len(list) > 25:
         await message.channel.send("bro quit yapping, you literally said " + str(len(list)) +  " words right there")
+        response = await api.get_image("181")
+        await message.channel.send(response.url)
+        return
+
+    # If the message has the first word "how"
+    if list[0] == "How" or list[0] == "how":
+        await message.channel.send("\"Try sucking less.\" - Mike Litman")
+        return
 
     # If the author mentions the words "sad", "sucks", "rough", "depressed", "terrible"
     # Cheer them up with a cat poster
@@ -64,22 +71,25 @@ async def on_message(message):
         if word == "sad" or word == "sucks" or word == "rough" or word == "depressed" or word == "terrible":
             await message.channel.send("Hey, cheer up! You'll get through this!")
             await message.channel.send("https://i.pinimg.com/originals/69/98/39/6998396b8c4fc79607712af48b5e41c9.jpg")
-
-    # CHECKS IF THE MESSAGE THAT WAS SENT IS EQUAL TO "HELLO".
-    if message.content == "hello":
-        # SENDS BACK A MESSAGE TO THE CHANNEL.
-        await message.channel.send("hello kind sir")
-
-    # processes command-type events    
-    await bot.process_commands(message)
+        elif word == "cat":
+            await message.channel.send("Did you say CAT?!?!?!?!?!")
+            response = await api.search_images(format="json", limit="5", size="small")
+            for item in response:
+                await message.channel.send(item.url)
+        elif word == "Christmas" or word == "christmas" or word == "xmas":
+            await message.channel.send("https://youtu.be/IJilxzxD8D8")
 
     # Checks message id. If message id modulo 10 = 0, respond to message with missing cat poster.
-    if message.id % 10 == 0:
+    if message.id % 1 == 0:
         name = list[random.randrange(0, len(list))]
         name = name.capitalize()
         await message.channel.send("Hi, have you seen my cat? He's missing. He'll respond to \"" + name + "\". " + "He looks like this:")
         response = await api.search_images(format="json", limit="1", size="small")
         await message.channel.send(response[0].url)
+        return
+
+    # processes command-type events    
+    await bot.process_commands(message)
 
 
 @bot.command()
